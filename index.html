@@ -63,10 +63,12 @@
           width: 100%;
           height: 100%;
       }
-      .speed-controls {
+      .control-bar {
+          display: flex;          
           padding: 20px 0;
+      }
+      .speed-controls {
           display: flex;
-          justify-content: center;
       }
       .speed-controls button {
           margin-left: 10px;
@@ -75,8 +77,16 @@
       .speed-controls button:first-child {
           margin-left: 0;
       }
+      .other-controls {
+          margin-left: auto
+      }
   </style>
   <script>
+      function repeat(element) {
+          var video = document.querySelector("video");
+          element.classList.toggle("active");
+          video.loop = element.classList.contains("active");
+      }
       function selected(element) {
           var buttons = document.querySelectorAll(".speed-controls button");
           buttons.forEach(function(button) {
@@ -119,11 +129,16 @@
                 <div class="video"></div>
             </div>
         </div>
-        <div class="speed-controls">
-            <button onclick="speed(this)" data-speed="1.0" class="active">1.00&times;</button>
-            <button onclick="speed(this)" data-speed="1.25">1.25&times;</button>
-            <button onclick="speed(this)" data-speed="1.5">1.50&times;</button>
-            <button onclick="speed(this)" data-speed="2.0">2.00&times;</button>
+        <div class="control-bar">
+            <div class="speed-controls">
+                <button onclick="speed(this)" data-speed="1.0" class="active">1.00&times;</button>
+                <button onclick="speed(this)" data-speed="1.25">1.25&times;</button>
+                <button onclick="speed(this)" data-speed="1.5">1.50&times;</button>
+                <button onclick="speed(this)" data-speed="2.0">2.00&times;</button>
+            </div>
+            <div class="other-controls">
+                <button onclick="repeat(this)">Repeat</button>
+            </div>
         </div>
     </div>
 </body>
