@@ -84,8 +84,7 @@
   <script>
       function repeat(element) {
           var video = document.querySelector("video");
-          element.classList.toggle("active");
-          video.loop = element.classList.contains("active");
+          video.loop = element.classList.toggle("active");
       }
       function selected(element) {
           var buttons = document.querySelectorAll(".speed-controls button");
