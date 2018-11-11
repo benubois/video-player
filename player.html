@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title></title>
+  <style>
+      body {
+          font-family: -apple-system;
+      }
+      video {
+          max-width: 100%;
+          height: 450px;
+          max-height: 100%;
+      }
+      button {
+          background-color: #FFF;
+          display: inline-block;
+          padding: 6px 12px;
+          margin-bottom: 0;
+          font-size: 16px;
+          line-height: 1.5;
+          text-align: center;
+          white-space: nowrap;
+          vertical-align: middle;
+          touch-action: manipulation;
+          cursor: pointer;
+          user-select: none;
+          background-image: none;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+      }
+      button.active, button:active {
+          background-image: none;
+          outline: 0;
+          box-shadow: inset 0 3px 5px rgba(51,153,255,.9);
+          color: #FFF;
+          background-color: rgba(51,153,255,.8);
+          border-color: rgba(51,153,255,1);
+      }
+      .title {
+          text-align: center;
+      }
+      .container {
+          margin: 0 auto;
+          max-width: 800px;
+      }
+      .video-wrap {
+          padding-top: 56.25%;
+          max-width: 100%;
+          background-color: black;
+          position: relative;
+      }
+      .video-inner {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          right: 0;
+          left: 0;
+      }
+      .video {
+          display: flex;
+          justify-content: center;
+          width: 100%;
+          height: 100%;
+      }
+      .speed-controls {
+          padding: 20px 0;
+          display: flex;
+          justify-content: center;
+      }
+      .speed-controls button {
+          margin-left: 10px;
+          width: 80px;
+      }
+      .speed-controls button:first-child {
+          margin-left: 0;
+      }
+  </style>
+  <script>
+      function selected(element) {
+          var buttons = document.querySelectorAll(".speed-controls button");
+          buttons.forEach(function(button) {
+              button.classList.remove("active");
+          });
+          element.classList.add("active");
+      }
+      function speed(element) {
+          var rate = element.dataset.speed;
+          var video = document.querySelector("video");
+          video.playbackRate = rate;
+          selected(element);
+      }
+      function title(string) {
+          document.title = string;
+          var title = document.querySelector(".title");
+          title.innerText = string;
+      }
+      function video(url, poster) {
+          var container = document.querySelector(".video")
+          var video = document.createElement("video");
+          video.src = url;
+          video.poster = poster;
+          video.autoplay = true;
+          video.controls = true;
+          container.appendChild(video);
+      }
+      function run() {
+          var params = new URLSearchParams(window.location.search);
+          title(params.get("title"));
+          video(params.get("url"), params.get("poster"));
+      }
+  </script>
+</head>
+<body onload="run()">
+    <div class="container">
+        <h3 class="title"></h3>
+        <div class="video-wrap">
+            <div class="video-inner">
+                <div class="video"></div>
+            </div>
+        </div>
+        <div class="speed-controls">
+            <button onclick="speed(this)" data-speed="1.0" class="active">1.00&times;</button>
+            <button onclick="speed(this)" data-speed="1.25">1.25&times;</button>
+            <button onclick="speed(this)" data-speed="1.5">1.50&times;</button>
+            <button onclick="speed(this)" data-speed="2.0">2.00&times;</button>
+        </div>
+    </div>
+</body>
+</html>
