@@ -22,8 +22,9 @@ with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         'url': video_url, 
         'poster': poster,
         'title': title
-	}
-	url = base_url + '?' + urllib.parse.urlencode(args)
+    }
+
+    url = base_url + '?' + urllib.parse.urlencode(args)
 	
-	app = UIApplication.sharedApplication()
-	app.openURL_(nsurl(url))
+    app = UIApplication.sharedApplication()
+    app.openURL_(nsurl(url))
