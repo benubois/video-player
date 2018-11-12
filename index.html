@@ -5,7 +5,7 @@
   <title></title>
   <style>
       body {
-          font-family: -apple-system;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, sans-serif;
       }
       video {
           max-width: 100%;
@@ -80,80 +80,116 @@
       .other-controls {
           margin-left: auto
       }
+      .error {
+          color: #fff;
+          display: flex;
+          align-items: center;
+      }
+      .hide {
+          display: none;
+      }
   </style>
   <script>
-      function repeat(element) {
-          var video = document.querySelector("video");
-          video.loop = element.classList.toggle("active");
-      }
-      function selected(element) {
-          var buttons = document.querySelectorAll(".speed-controls button");
-          buttons.forEach(function(button) {
-              button.classList.remove("active");
-          });
-          element.classList.add("active");
-      }
-      function speed(element) {
-          var rate = element.dataset.speed;
-          var video = document.querySelector("video");
-          video.playbackRate = rate;
-          selected(element);
-      }
-      function title(string) {
-          document.title = string;
-          var title = document.querySelector(".title");
-          title.innerText = string;
-      }
-      function updateParams(params) {
-          var path = window.location.pathname + "?" + params.toString();
-          history.pushState(null, "", path);
-      }
-      function video(url, poster, time) {
-          var container = document.querySelector(".video")
-          var video = document.createElement("video");
-          var initialized = false;
+      class Player {
+          constructor(video, title) {
+              this.video = video.element;
+              this.title = title;
+          }
+          load() {
+              (this.title) ? this.setTitle(this.title) : this.setTitle("Untitled")
 
-          video.src = url;
-          video.poster = poster;
-          video.autoplay = true;
-          video.controls = true;
+              this.speedControls = document.querySelectorAll("[data-behavior~=speed_control]");
+              this.speedControls.forEach(item => item.addEventListener("click", event => this.speed(event), false));
 
-          video.ontimeupdate = function(event) {
+              this.repeatControls = document.querySelectorAll("[data-behavior~=repeat_control]");
+              this.repeatControls.forEach(item => item.addEventListener("click", event => this.repeat(event), false));
+          }
+          repeat(event) {
+              var element = event.target;
+              this.video.loop = element.classList.toggle("active");
+          }
+          speed(event) {
+              var element = event.target;
+              var rate = element.dataset.speed;
+              this.video.playbackRate = rate;
+              this.selected(element);
+          }
+          selected(element) {
+              this.speedControls.forEach(item => item.classList.remove("active"));
+              element.classList.add("active");
+          }
+          setTitle(string) {
+              document.title = string;
+              var title = document.querySelector(".title");
+              title.innerText = string;
+          }
+      }
+      class Video {
+          constructor(url, poster, time) {
+              this.url = url;
+              this.poster = poster;
+              this.time = time;
+              this.initialized = false;
+              this.element = document.createElement("video");
+          }
+          load() {
+              var container = document.querySelector(".video")
+
+              this.element.src = this.url;
+              this.element.poster = this.poster;
+              this.element.autoplay = true;
+              this.element.controls = true;
+              this.element.addEventListener("timeupdate", event => this.timeupdate(event), false);
+              this.element.addEventListener("canplaythrough", event => this.canplaythrough(event), false);
+              this.element.addEventListener("ended", event => this.ended(event), false);
+
+              container.appendChild(this.element);
+          }
+          timeupdate(event) {
               var params = new URLSearchParams(window.location.search)
               var oldTime = params.get("time") || 0
               var currentTime = event.target.currentTime
               var diff = (currentTime - oldTime)
               if (Math.abs(diff) > 30) {
                   params.set("time", event.target.currentTime);
-                  updateParams(params);
+                  this.updateParams(params);
               }
-          };
-
-          video.addEventListener("canplaythrough", function(event) {
-              if(typeof(time) != null && !initialized) {
-                  video.currentTime = time;
-                  initialized = true;
+          }
+          canplaythrough(event) {
+              if(this.time && !this.initialized) {
+                  this.element.currentTime = this.time;
+                  this.initialized = true;
               }
-          }, false);
-
-          video.addEventListener("ended", function(event) {
+          }
+          ended(event) {
               var params = new URLSearchParams(window.location.search);
               params.delete("time");
-              updateParams(params);
-          }, false);
-
-          document.onkeyup = function(event) {
-              if (event.which == 70) {
-                  video.webkitEnterFullScreen();
-              }
-          };
-
-          container.appendChild(video);
+              this.updateParams(params);
+          }
+          updateParams(params) {
+              var path = `${window.location.pathname}?${params.toString()}`;
+              history.pushState(null, "", path);
+          }
       }
       function run() {
           var params = new URLSearchParams(window.location.search);
-          title(params.get("title"));
-          video(params.get("url"), params.get("poster"), params.get("time"));
+
+          var title = params.get("title");
+          var url = params.get("url");
+          var poster = params.get("poster");
+          var time = params.get("time");
+
+          if (url) {
+              var video = new Video(url, poster, time);
+              video.load();
+
+              var player = new Player(video, title);
+              player.load()
+          } else {
+              var error = document.querySelector(".error");
+              error.classList.remove("hide");
+              setTitle("Invalid Video");
+          }
       }
   </script>
 </head>
@@ -162,18 +198,20 @@
         <h3 class="title">Loading…</h3>
         <div class="video-wrap">
             <div class="video-inner">
-                <div class="video"></div>
+                <div class="video">
+                    <div class="error hide">Missing video URL</div>
+                </div>
             </div>
         </div>
         <div class="control-bar">
             <div class="speed-controls">
-                <button onclick="speed(this)" data-speed="1.0" class="active">1.00&times;</button>
-                <button onclick="speed(this)" data-speed="1.25">1.25&times;</button>
-                <button onclick="speed(this)" data-speed="1.5">1.50&times;</button>
-                <button onclick="speed(this)" data-speed="2.0">2.00&times;</button>
+                <button data-behavior="speed_control" data-speed="1.0" class="active">1.00&times;</button>
+                <button data-behavior="speed_control" data-speed="1.25">1.25&times;</button>
+                <button data-behavior="speed_control" data-speed="1.5">1.50&times;</button>
+                <button data-behavior="speed_control" data-speed="2.0">2.00&times;</button>
             </div>
             <div class="other-controls">
-                <button onclick="repeat(this)">Repeat</button>
+                <button data-behavior="repeat_control">Repeat</button>
             </div>
         </div>
     </div>
