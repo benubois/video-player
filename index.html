@@ -111,12 +111,13 @@
       function video(url, poster, time) {
           var container = document.querySelector(".video")
           var video = document.createElement("video");
-          var initdone = false;
+          var initialized = false;
 
           video.src = url;
           video.poster = poster;
           video.autoplay = true;
           video.controls = true;
+
           video.ontimeupdate = function(event) {
               var params = new URLSearchParams(window.location.search)
               var oldTime = params.get("time") || 0
@@ -127,17 +128,26 @@
                   updateParams(params);
               }
           };
+
           video.addEventListener("canplaythrough", function(event) {
-              if(typeof(time) != null && !initdone) {
+              if(typeof(time) != null && !initialized) {
                   video.currentTime = time;
-                  initdone = true;
+                  initialized = true;
               }
           }, false);
+
           video.addEventListener("ended", function(event) {
               var params = new URLSearchParams(window.location.search);
               params.delete("time");
               updateParams(params);
           }, false);
+
+          document.onkeyup = function(event) {
+              if (event.shiftKey && event.which == 70) {
+                  video.webkitRequestFullScreen();
+              }
+          };
+
           container.appendChild(video);
       }
       function run() {
