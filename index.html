@@ -122,7 +122,7 @@
               var oldTime = params.get("time") || 0
               var currentTime = event.target.currentTime
               var diff = (currentTime - oldTime)
-              if (diff > 30) {
+              if (Math.abs(diff) > 30) {
                   params.set("time", event.target.currentTime);
                   updateParams(params);
               }
