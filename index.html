@@ -64,7 +64,7 @@
           height: 100%;
       }
       .control-bar {
-          display: flex;          
+          display: flex;
           padding: 20px 0;
       }
       .speed-controls {
@@ -104,19 +104,46 @@
           var title = document.querySelector(".title");
           title.innerText = string;
       }
-      function video(url, poster) {
+      function updateParams(params) {
+          var path = window.location.pathname + "?" + params.toString();
+          history.pushState(null, "", path);
+      }
+      function video(url, poster, time) {
           var container = document.querySelector(".video")
           var video = document.createElement("video");
+          var initdone = false;
+
           video.src = url;
           video.poster = poster;
           video.autoplay = true;
           video.controls = true;
+          video.ontimeupdate = function(event) {
+              var params = new URLSearchParams(window.location.search)
+              var oldTime = params.get("time") || 0
+              var currentTime = event.target.currentTime
+              var diff = (currentTime - oldTime)
+              if (diff > 30) {
+                  params.set("time", event.target.currentTime);
+                  updateParams(params);
+              }
+          };
+          video.addEventListener("canplaythrough", function(event) {
+              if(typeof(time) != null && !initdone) {
+                  video.currentTime = time;
+                  initdone = true;
+              }
+          }, false);
+          video.addEventListener("ended", function(event) {
+              var params = new URLSearchParams(window.location.search);
+              params.delete("time");
+              updateParams(params);
+          }, false);
           container.appendChild(video);
       }
       function run() {
           var params = new URLSearchParams(window.location.search);
           title(params.get("title"));
-          video(params.get("url"), params.get("poster"));
+          video(params.get("url"), params.get("poster"), params.get("time"));
       }
   </script>
 </head>
@@ -130,7 +157,6 @@
         </div>
         <div class="control-bar">
             <div class="speed-controls">
-                <button onclick="speed(this)" data-speed="0.5">0.50&times;</button>
                 <button onclick="speed(this)" data-speed="1.0" class="active">1.00&times;</button>
                 <button onclick="speed(this)" data-speed="1.25">1.25&times;</button>
                 <button onclick="speed(this)" data-speed="1.5">1.50&times;</button>
