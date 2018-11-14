@@ -17,8 +17,8 @@ with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 
     query = urllib.parse.urlencode({
         'url': info.get('url'),
-        'poster': info.get('title', ''),
-        'title': info.get('thumbnail', '')
+        'title': info.get('title', ''),
+        'poster': info.get('thumbnail', '')
     })
 
     url = base_url + '?' + query
