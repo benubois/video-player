@@ -4,8 +4,13 @@
   <meta charset="utf-8"/>
   <title></title>
   <style>
+      html, body {
+          height: 100%;
+      }
       body {
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, sans-serif;
+          margin: 0;
+          background-color: #2E2D2C;
       }
       video {
           width: 100%;
@@ -27,6 +32,7 @@
           background-image: none;
           border: 1px solid #ccc;
           border-radius: 4px;
+          margin: 0;
       }
       button.active, button:active {
           background-image: none;
@@ -38,9 +44,20 @@
       }
       .title {
           text-align: center;
+          margin: 0;
+          padding: 20px 0;
+          color: white;
+          margin-bottom: auto;
       }
       .container {
-          margin: 0 auto;
+          min-height: 100%;
+          display: flex;
+      }
+      .container-inner {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
       }
       .video-wrap {
           padding-top: 56.25%;
@@ -63,7 +80,9 @@
       }
       .control-bar {
           display: flex;
-          padding: 20px 0;
+          padding: 20px 15px;
+          margin-top: auto;
+          background-color: rgba(255,255,255,.1);
       }
       .speed-controls {
           display: flex;
@@ -101,6 +120,42 @@
 
               this.repeatControls = document.querySelectorAll("[data-behavior~=repeat_control]");
               this.repeatControls.forEach(item => item.addEventListener("click", event => this.repeat(event), false));
+
+              this.registerKeyboardShortcut(this.playPause, 32)
+              this.registerKeyboardShortcut(this.skipForwards, ["ArrowRight", "UIKeyInputRightArrow"]);
+              this.registerKeyboardShortcut(this.skipBackwards, ["ArrowLeft", "UIKeyInputLeftArrow"]);
+              this.registerKeyboardShortcut(this.volumeUp, ["ArrowUp", "UIKeyInputUpArrow"]);
+              this.registerKeyboardShortcut(this.volumeDown, ["ArrowDown", "UIKeyInputDownArrow"]);
+          }
+          registerKeyboardShortcut(callback, keys) {
+              document.addEventListener('keydown', event => {
+                  this.keyboardShortcut(callback.bind(this), keys, event);
+              }, false)
+          }
+          keyboardShortcut(callback, keys, event) {
+              keys = [keys].flat()
+              if (keys.includes(event.key) || keys.includes(event.keyCode)) {
+                  callback()
+              }
+          }
+          volumeUp() {
+              try { this.video.volume += 0.1; } catch (e) {}
+          }
+          volumeDown() {
+              try { this.video.volume -= 0.1; } catch (e) {}
+          }
+          skipForwards() {
+              this.video.currentTime += 30;
+          }
+          skipBackwards() {
+              this.video.currentTime -= 30;
+          }
+          playPause() {
+              if (this.video.paused) {
+                  this.video.play();
+              } else {
+                  this.video.pause();
+              }
           }
           repeat(event) {
               var element = event.target;
@@ -193,23 +248,25 @@
 </head>
 <body onload="run()">
     <div class="container">
-        <h3 class="title">Loading…</h3>
-        <div class="video-wrap">
-            <div class="video-inner">
-                <div class="video">
-                    <div class="error hide">Missing video URL</div>
+        <div class="container-inner">
+            <h3 class="title">Loading…</h3>
+            <div class="video-wrap">
+                <div class="video-inner">
+                    <div class="video">
+                        <div class="error hide">Missing video URL</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="control-bar">
-            <div class="speed-controls">
-                <button data-behavior="speed_control" data-speed="1.0" class="active">1.00&times;</button>
-                <button data-behavior="speed_control" data-speed="1.25">1.25&times;</button>
-                <button data-behavior="speed_control" data-speed="1.5">1.50&times;</button>
-                <button data-behavior="speed_control" data-speed="2.0">2.00&times;</button>
-            </div>
-            <div class="other-controls">
-                <button data-behavior="repeat_control">Repeat</button>
+            <div class="control-bar">
+                <div class="speed-controls">
+                    <button data-behavior="speed_control" data-speed="1.0" class="active">1.00&times;</button>
+                    <button data-behavior="speed_control" data-speed="1.25">1.25&times;</button>
+                    <button data-behavior="speed_control" data-speed="1.5">1.50&times;</button>
+                    <button data-behavior="speed_control" data-speed="2.0">2.00&times;</button>
+                </div>
+                <div class="other-controls">
+                    <button data-behavior="repeat_control">Repeat</button>
+                </div>
             </div>
         </div>
     </div>
