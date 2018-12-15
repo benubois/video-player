@@ -111,6 +111,24 @@
       }
   </style>
   <script>
+      class Keyboard {
+          constructor(key, event) {
+              this.key = key;
+              this.event = event;
+              this.keyCodeMap = {
+                "f": 70,
+                "space": 32,
+                "up": ["ArrowUp", "UIKeyInputUpArrow"],
+                "down": ["ArrowDown", "UIKeyInputDownArrow"],
+                "left": ["ArrowLeft", "UIKeyInputLeftArrow"],
+                "right": ["ArrowRight", "UIKeyInputRightArrow"],
+              }
+          }
+          keyWasPressed() {
+              let keyCodes = [this.keyCodeMap[this.key]].flat()
+              return keyCodes.includes(this.event.key) || keyCodes.includes(this.event.keyCode)
+          }
+      }
       class Player {
           constructor(video, title) {
               this.video = video.element;
@@ -124,37 +142,37 @@
 
               this.repeatControls = document.querySelectorAll("[data-behavior~=repeat_control]");
               this.repeatControls.forEach(item => item.addEventListener("click", event => this.repeat(event), false));
-              
-              var keys = {
-                "f": 70,
-                "space": 32
-              }
 
-              this.registerKeyboardShortcut(this.fullScreen, keys["f"], "keyup");
-              this.registerKeyboardShortcut(this.playPause, keys["space"], "keyup");
-              this.registerKeyboardShortcut(this.skipForwards, ["ArrowRight", "UIKeyInputRightArrow"], "keydown");
-              this.registerKeyboardShortcut(this.skipBackwards, ["ArrowLeft", "UIKeyInputLeftArrow"], "keydown");
-              this.registerKeyboardShortcut(this.volumeUp, ["ArrowUp", "UIKeyInputUpArrow"], "keydown");
-              this.registerKeyboardShortcut(this.volumeDown, ["ArrowDown", "UIKeyInputDownArrow"], "keydown");
+              this.bindShortcuts()
           }
-          registerKeyboardShortcut(callback, keys, listenFor) {
-              document.addEventListener(listenFor, event => {
-                  this.keyboardShortcut(callback.bind(this), keys, event);
-              }, false)
+          bindShortcuts() {
+              let keyboardShortcuts = {
+                  "f":     this.fullScreen,
+                  "space": this.playPause,
+                  "right": this.skipForwards,
+                  "left":  this.skipBackwards,
+                  "up":    this.volumeUp,
+                  "down":  this.volumeDown,
+              }
+              Object.entries(keyboardShortcuts).forEach(([key, callback]) => {
+                  document.addEventListener("keydown", event => {
+                      this.keyboardShortcut(callback.bind(this), key, event);
+                  }, false)
+              });
           }
-          keyboardShortcut(callback, keys, event) {
-              keys = [keys].flat()
-              if (keys.includes(event.key) || keys.includes(event.keyCode)) {
+          keyboardShortcut(callback, key, event) {
+              let keyboard = new Keyboard(key, event);
+              if (keyboard.keyWasPressed()) {
                   callback()
                   event.preventDefault();
               }
           }
           fullScreen() {
-            if (this.isFullScreen()) {
-              this.video.webkitExitFullscreen();
-            } else {
-              this.video.webkitEnterFullscreen();
-            }
+              if (this.isFullScreen()) {
+                  this.video.webkitExitFullscreen();
+              } else {
+                  this.video.webkitEnterFullscreen();
+              }
           }
           volumeUp() {
               try { this.video.volume += 0.1; } catch (e) {}
@@ -169,7 +187,6 @@
               this.video.currentTime -= 30;
           }
           playPause() {
-              var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
               if (!this.isFullScreen()) {
                   if (this.video.paused) {
                       this.video.play();
@@ -179,15 +196,15 @@
               }
           }
           isFullScreen() {
-            document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+              document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
           }
           repeat(event) {
-              var element = event.target;
+              let element = event.target;
               this.video.loop = element.classList.toggle("active");
           }
           speed(event) {
-              var element = event.target;
-              var rate = element.dataset.speed;
+              let element = event.target;
+              let rate = element.dataset.speed;
               this.video.playbackRate = rate;
               this.selected(element);
           }
@@ -197,7 +214,7 @@
           }
           setTitle(string) {
               document.title = string;
-              var title = document.querySelector(".title");
+              let title = document.querySelector(".title");
               title.innerText = string;
           }
       }
@@ -211,7 +228,7 @@
               this.element = document.createElement("video");
           }
           load() {
-              var container = document.querySelector(".video")
+              let container = document.querySelector(".video")
 
               this.element.src = this.url;
               this.element.poster = this.poster;
@@ -224,17 +241,16 @@
               container.appendChild(this.element);
           }
           timeupdate(event) {
-              var params = new URLSearchParams(window.location.search)
-              var oldTime = params.get("time") || 0
-              var currentTime = event.target.currentTime
-              var diff = (currentTime - oldTime)
+              let params = new URLSearchParams(window.location.search)
+              let oldTime = params.get("time") || 0
+              let currentTime = event.target.currentTime
+              let diff = (currentTime - oldTime)
               if (Math.abs(diff) > 30) {
                   params.set("time", event.target.currentTime);
                   this.updateParams(params);
               }
           }
           canplaythrough(event) {
-
               if (!this.initialized) {
                   if (this.time) {
                       this.element.currentTime = this.time;
@@ -243,43 +259,41 @@
                       this.element.style["transform"] = `scaleX(${this.aspectRatio})`;
                   }
               }
-
               this.initialized = true;
           }
           ended(event) {
-              var params = new URLSearchParams(window.location.search);
+              let params = new URLSearchParams(window.location.search);
               params.delete("time");
               this.updateParams(params);
           }
           updateParams(params) {
-              var path = `${window.location.pathname}?${params.toString()}`;
+              let path = `${window.location.pathname}?${params.toString()}`;
               history.pushState(null, "", path);
           }
       }
       function run() {
-          var params = new URLSearchParams(window.location.search);
+          let params = new URLSearchParams(window.location.search);
 
-          var title = params.get("title");
-          var url = params.get("url");
-          var poster = params.get("poster");
-          var time = params.get("time");
-          var aspectRatio = params.get("aspect_ratio");
-          var hideControls = params.get("hide_controls");
-
+          let title = params.get("title");
+          let url = params.get("url");
+          let poster = params.get("poster");
+          let time = params.get("time");
+          let aspectRatio = params.get("aspect_ratio");
+          let hideControls = params.get("hide_controls");
 
           if (hideControls) {
-              var controls = document.querySelector(".meta");
+              let controls = document.querySelector(".meta");
               controls.style["display"] = "none";
           }
 
           if (url) {
-              var video = new Video(url, poster, time, aspectRatio);
+              let video = new Video(url, poster, time, aspectRatio);
               video.load();
 
-              var player = new Player(video, title);
+              let player = new Player(video, title);
               player.load()
           } else {
-              var error = document.querySelector(".error");
+              let error = document.querySelector(".error");
               error.classList.remove("hide");
               setTitle("Invalid Video");
           }
