@@ -156,10 +156,13 @@
               this.video.currentTime -= 30;
           }
           playPause() {
-              if (this.video.paused) {
-                  this.video.play();
-              } else {
-                  this.video.pause();
+              var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
+              if (!isFullScreen) {
+                  if (this.video.paused) {
+                      this.video.play();
+                  } else {
+                      this.video.pause();
+                  }
               }
           }
           repeat(event) {
