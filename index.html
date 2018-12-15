@@ -245,6 +245,13 @@
           var poster = params.get("poster");
           var time = params.get("time");
           var aspectRatio = params.get("aspect_ratio");
+          var hideControls = params.get("hide_controls");
+
+
+          if (hideControls) {
+              var controls = document.querySelector(".meta");
+              controls.style["display"] = "none";
+          }
 
           if (url) {
               var video = new Video(url, poster, time, aspectRatio);
