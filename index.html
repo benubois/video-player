@@ -124,15 +124,20 @@
 
               this.repeatControls = document.querySelectorAll("[data-behavior~=repeat_control]");
               this.repeatControls.forEach(item => item.addEventListener("click", event => this.repeat(event), false));
-
-              this.registerKeyboardShortcut(this.playPause, 32)
-              this.registerKeyboardShortcut(this.skipForwards, ["ArrowRight", "UIKeyInputRightArrow"]);
-              this.registerKeyboardShortcut(this.skipBackwards, ["ArrowLeft", "UIKeyInputLeftArrow"]);
-              this.registerKeyboardShortcut(this.volumeUp, ["ArrowUp", "UIKeyInputUpArrow"]);
-              this.registerKeyboardShortcut(this.volumeDown, ["ArrowDown", "UIKeyInputDownArrow"]);
+              
+              # f
+              this.registerKeyboardShortcut(this.fullScreen, 70, "keyup");
+            
+              # space
+              this.registerKeyboardShortcut(this.playPause, 32, "keyup");
+            
+              this.registerKeyboardShortcut(this.skipForwards, ["ArrowRight", "UIKeyInputRightArrow"], "keydown");
+              this.registerKeyboardShortcut(this.skipBackwards, ["ArrowLeft", "UIKeyInputLeftArrow"], "keydown");
+              this.registerKeyboardShortcut(this.volumeUp, ["ArrowUp", "UIKeyInputUpArrow"], "keydown");
+              this.registerKeyboardShortcut(this.volumeDown, ["ArrowDown", "UIKeyInputDownArrow"], "keydown");
           }
-          registerKeyboardShortcut(callback, keys) {
-              document.addEventListener('keydown', event => {
+          registerKeyboardShortcut(callback, keys, listenTo) {
+              document.addEventListener(listenTo, event => {
                   this.keyboardShortcut(callback.bind(this), keys, event);
               }, false)
           }
@@ -142,6 +147,13 @@
                   callback()
                   event.preventDefault();
               }
+          }
+          fullScreen() {
+            if (this.isFullScreen()) {
+              this.video.webkitExitFullscreen();
+            } else {
+              this.video.webkitEnterFullscreen();
+            }
           }
           volumeUp() {
               try { this.video.volume += 0.1; } catch (e) {}
@@ -157,13 +169,16 @@
           }
           playPause() {
               var isFullScreen = document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
-              if (!isFullScreen) {
+              if (!this.isFullScreen()) {
                   if (this.video.paused) {
                       this.video.play();
                   } else {
                       this.video.pause();
                   }
               }
+          }
+          isFullScreen() {
+            document.fullScreen || document.mozFullScreen || document.webkitIsFullScreen;
           }
           repeat(event) {
               var element = event.target;
