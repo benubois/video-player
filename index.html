@@ -140,8 +140,8 @@
               keys = [keys].flat()
               if (keys.includes(event.key) || keys.includes(event.keyCode)) {
                   callback()
+                  event.preventDefault();
               }
-              event.preventDefault();
           }
           volumeUp() {
               try { this.video.volume += 0.1; } catch (e) {}
@@ -183,10 +183,11 @@
           }
       }
       class Video {
-          constructor(url, poster, time) {
+          constructor(url, poster, time, aspectRatio) {
               this.url = url;
               this.poster = poster;
               this.time = time;
+              this.aspectRatio = aspectRatio;
               this.initialized = false;
               this.element = document.createElement("video");
           }
@@ -214,10 +215,17 @@
               }
           }
           canplaythrough(event) {
-              if(this.time && !this.initialized) {
-                  this.element.currentTime = this.time;
-                  this.initialized = true;
+
+              if (!this.initialized) {
+                  if (this.time) {
+                      this.element.currentTime = this.time;
+                  }
+                  if (this.aspectRatio) {
+                      this.element.style["transform"] = `scaleX(${this.aspectRatio})`;
+                  }
               }
+
+              this.initialized = true;
           }
           ended(event) {
               var params = new URLSearchParams(window.location.search);
@@ -236,9 +244,10 @@
           var url = params.get("url");
           var poster = params.get("poster");
           var time = params.get("time");
+          var aspectRatio = params.get("aspect_ratio");
 
           if (url) {
-              var video = new Video(url, poster, time);
+              var video = new Video(url, poster, time, aspectRatio);
               video.load();
 
               var player = new Player(video, title);
