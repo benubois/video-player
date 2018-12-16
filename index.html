@@ -92,23 +92,24 @@
       }
       .control-bar {
           display: flex;
+          justify-content: space-between;
       }
-      .speed-controls {
+      .center-group {
           display: flex;
       }
-      .speed-controls button {
+      .center-group button {
           margin-left: 10px;
       }
-      .speed-controls button:first-child {
+      .center-group button:first-child {
           margin-left: 0;
-      }
-      .other-controls {
-          margin-left: auto
       }
       .error {
           color: #fff;
           display: flex;
           align-items: center;
+      }
+      .skip-button {
+          width: 50px;
       }
       .hide {
           display: none;
@@ -138,18 +139,25 @@
               this.video = video.element;
               this.title = title;
           }
+          bindEvent(listenFor, selector, callback) {
+              let elements = document.querySelectorAll(selector);
+              elements.forEach(element => {
+                  element.addEventListener(listenFor, event => {
+                      callback.bind(this)(event)
+                  }, false)
+              });
+          }
           load() {
               (this.title) ? this.setTitle(this.title) : this.setTitle("Untitled")
 
-              this.speedControls = document.querySelectorAll("[data-behavior~=speed_control]");
-              this.speedControls.forEach(item => item.addEventListener("click", event => this.speed(event), false));
+              this.bindKeyboardShortcuts()
 
-              this.repeatControls = document.querySelectorAll("[data-behavior~=repeat_control]");
-              this.repeatControls.forEach(item => item.addEventListener("click", event => this.repeat(event), false));
-
-              this.bindShortcuts()
+              this.bindEvent("click", "[data-behavior~=speed_control]", this.speed)
+              this.bindEvent("click", "[data-behavior~=repeat_control]", this.repeat)
+              this.bindEvent("click", "[data-behavior~=skip_forwards]", this.skipForwards)
+              this.bindEvent("click", "[data-behavior~=skip_backwards]", this.skipBackwards)
           }
-          bindShortcuts() {
+          bindKeyboardShortcuts() {
               let keyboardShortcuts = {
                   "f":     this.fullScreen,
                   "space": this.playPause,
@@ -185,10 +193,10 @@
               try { this.video.volume -= 0.1; } catch (e) {}
           }
           skipForwards() {
-              this.video.currentTime += 30;
+              this.video.currentTime += 15;
           }
           skipBackwards() {
-              this.video.currentTime -= 30;
+              this.video.currentTime -= 15;
           }
           playPause() {
               if (!this.isFullScreen()) {
@@ -208,12 +216,12 @@
           }
           speed(event) {
               let element = event.target;
-              let rate = element.dataset.speed;
-              this.video.playbackRate = rate;
-              this.selected(element);
-          }
-          selected(element) {
-              this.speedControls.forEach(item => item.classList.remove("active"));
+              let playbackRate = element.dataset.speed;
+              this.video.playbackRate = playbackRate;
+
+              document.querySelectorAll("[data-behavior~=speed_control]").forEach(item => {
+                  item.classList.remove("active")
+              });
               element.classList.add("active");
           }
           setTitle(string) {
@@ -299,7 +307,7 @@
           } else {
               let error = document.querySelector(".error");
               error.classList.remove("hide");
-              setTitle("Invalid Video");
+              document.title = "Invalid Video"
           }
       }
   </script>
@@ -317,14 +325,18 @@
             <div class="meta">
                 <h3 class="title">Loading…</h3>
                 <div class="control-bar">
-                    <div class="speed-controls">
+                    <div class="trailing-group">
+                        <button class="skip-button" data-behavior="skip_backwards">◀︎</button>
+                        <button data-behavior="repeat_control">Repeat</button>
+                    </div>
+                    <div class="center-group">
                         <button data-behavior="speed_control" data-speed="1.0" class="active">1.00&times;</button>
                         <button data-behavior="speed_control" data-speed="1.25">1.25&times;</button>
                         <button data-behavior="speed_control" data-speed="1.5">1.50&times;</button>
                         <button data-behavior="speed_control" data-speed="2.0">2.00&times;</button>
                     </div>
-                    <div class="other-controls">
-                        <button data-behavior="repeat_control">Repeat</button>
+                    <div class="leading-group">
+                        <button class="skip-button" data-behavior="skip_forwards">▶︎</button>
                     </div>
                 </div>
             </div>
