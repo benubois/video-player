@@ -5,6 +5,12 @@
   <meta name="viewport" content="initial-scale=1.0,width=device-width,user-scalable=no,viewport-fit=cover" />
   <title></title>
   <style>
+      :root {
+          --active-hue: 214;
+          --active-saturation: 93%;
+          --active-lightness: 46%;
+          --active-color: hsla(var(--active-hue), var(--active-saturation), var(--active-lightness), 1);
+      }
       *,*:before,*:after {
         box-sizing: border-box;
       }
@@ -27,10 +33,9 @@
           color: rgba(255,255,255,.8);
           border: 1px solid rgba(255,255,255,.05);
           display: inline-block;
-          padding: 6px 9px;
+          padding: 9px 11px;
           margin-bottom: 0;
           font-size: 16px;
-          line-height: 1.5;
           text-align: center;
           white-space: nowrap;
           vertical-align: middle;
@@ -47,11 +52,15 @@
           background-image: none;
           outline: 0;
           color: #FFF;
-          background-color: #0867E2;
+          background-color: var(--active-color);
           border-color: #0A74FF;
       }
       button:active {
-          background: linear-gradient(to bottom, hsla(214, 93%, 40%, 1) 0%, hsla(214, 93%, 46%, 1) 100%);
+          --lightness: calc(var(--active-lightness) - 6%);
+          --start-color: hsla(var(--active-hue), var(--active-saturation), var(--lightness), 1);
+          --end-color: var(--active-color);
+          background: linear-gradient(to bottom, var(--start-color) 0%, var(--end-color) 100%);
+          box-shadow: none;
       }
       .container {
           min-height: 100%;
@@ -84,12 +93,13 @@
           justify-content: center;
       }
       .meta {
+          --padding: 8px;
           display: flex;
           flex-direction: column;
           flex-shrink: 0;
           background-color: rgba(255,255,255,.1);
-          padding: 8px;
-          padding-bottom: calc(8px + env(safe-area-inset-bottom));
+          padding: var(--padding);
+          padding-bottom: calc(var(--padding) + env(safe-area-inset-bottom));
       }
       .title {
           margin: 5px 0;
