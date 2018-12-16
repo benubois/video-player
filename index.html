@@ -167,10 +167,10 @@
               this.video = video.element;
               this.title = title;
           }
-          bindEvent(listenFor, selector, callback) {
-              let elements = document.querySelectorAll(selector);
+          onClick(behavior, callback) {
+              let elements = document.querySelectorAll(`[data-behavior~=${behavior}]`);
               elements.forEach(element => {
-                  element.addEventListener(listenFor, event => {
+                  element.addEventListener("click", event => {
                       callback.bind(this)(event)
                   }, false)
               });
@@ -180,10 +180,10 @@
 
               this.bindKeyboardShortcuts()
 
-              this.bindEvent("click", "[data-behavior~=speed_control]", this.speed)
-              this.bindEvent("click", "[data-behavior~=repeat_control]", this.repeat)
-              this.bindEvent("click", "[data-behavior~=skip_forwards]", this.skipForwards)
-              this.bindEvent("click", "[data-behavior~=skip_backwards]", this.skipBackwards)
+              this.onClick("speed_control", this.speed)
+              this.onClick("repeat_control", this.repeat)
+              this.onClick("skip_forwards", this.skipForwards)
+              this.onClick("skip_backwards", this.skipBackwards)
           }
           bindKeyboardShortcuts() {
               let keyboardShortcuts = {
