@@ -59,7 +59,7 @@
           --lightness: calc(var(--active-lightness) - 6%);
           --start-color: hsla(var(--active-hue), var(--active-saturation), var(--lightness), 1);
           --end-color: var(--active-color);
-          background: linear-gradient(to bottom, var(--start-color) 0%, var(--end-color) 100%);
+          background: linear-gradient(to bottom, var(--start-color) 0%, var(--end-color) 50%);
           box-shadow: none;
       }
       .container {
@@ -355,7 +355,7 @@
                 <h3 class="title">Loading…</h3>
                 <div class="control-bar">
                     <div class="trailing-group">
-                        <button class="skip-button" data-behavior="skip_backwards" title="Rewind 15 seconds">◀︎◀︎</button>
+                        <button class="skip-button" data-behavior="skip_backwards" title="Rewind 15 seconds">◀︎</button>
                     </div>
                     <div class="center-group">
                         <button data-behavior="speed_control" data-speed="1.0" class="active" title="1× speed">1.00×</button>
@@ -365,7 +365,7 @@
                         <button data-behavior="repeat_control">Repeat</button>
                     </div>
                     <div class="leading-group">
-                        <button class="skip-button" data-behavior="skip_forwards" title="Fast-forward 15 seconds">▶︎▶︎</button>
+                        <button class="skip-button" data-behavior="skip_forwards" title="Fast-forward 15 seconds">▶︎</button>
                     </div>
                 </div>
             </div>
