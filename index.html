@@ -206,6 +206,7 @@
               if (keyboard.keyWasPressed()) {
                   callback()
                   event.preventDefault();
+                  event.stopPropagation();
               }
           }
           fullScreen() {
@@ -228,12 +229,10 @@
               this.video.currentTime -= 15;
           }
           playPause() {
-              if (!this.isFullScreen()) {
-                  if (this.video.paused) {
-                      this.video.play();
-                  } else {
-                      this.video.pause();
-                  }
+              if (this.video.paused) {
+                  this.video.play();
+              } else {
+                  this.video.pause();
               }
           }
           isFullScreen() {
