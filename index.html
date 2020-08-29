@@ -308,7 +308,7 @@
           }
           updateParams(params) {
               let path = `${window.location.pathname}?${params.toString()}`;
-              history.pushState(null, "", path);
+              history.replaceState(null, "", path);
           }
       }
       function run() {
