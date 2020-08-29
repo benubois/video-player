@@ -274,21 +274,21 @@
               this.element.poster = this.poster;
               this.element.autoplay = true;
               this.element.controls = true;
-              this.element.addEventListener("timeupdate", event => this.timeupdate(event), false);
               this.element.addEventListener("canplaythrough", event => this.canplaythrough(event), false);
               this.element.addEventListener("ended", event => this.ended(event), false);
+              this.element.addEventListener("pause", event => this.saveProgress(event), false);
 
               container.appendChild(this.element);
           }
-          timeupdate(event) {
-              let params = new URLSearchParams(window.location.search)
-              let oldTime = params.get("time") || 0
-              let currentTime = event.target.currentTime
-              let diff = (currentTime - oldTime)
-              if (Math.abs(diff) > 30) {
-                  params.set("time", event.target.currentTime);
-                  this.updateParams(params);
-              }
+          saveProgress(event) {
+            let params = new URLSearchParams(window.location.search)
+            let oldTime = params.get("time") || 0
+            let currentTime = this.element.currentTime
+            let diff = (currentTime - oldTime)
+            if (Math.abs(diff) > 30) {
+                params.set("time", this.element.currentTime);
+                this.updateParams(params);
+            }
           }
           canplaythrough(event) {
               if (!this.initialized) {
@@ -308,7 +308,7 @@
           }
           updateParams(params) {
               let path = `${window.location.pathname}?${params.toString()}`;
-              history.replaceState(null, "", path);
+              history.pushState(null, "", path);
           }
       }
       function run() {
