@@ -19,7 +19,7 @@
           -webkit-text-size-adjust: none;
       }
       body {
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, sans-serif;
+          font-family: -apple-system, system-ui, sans-serif;
           margin: 0;
           background-color: black;
           user-select: none;
@@ -33,7 +33,7 @@
           color: rgba(255,255,255,.8);
           border: 1px solid rgba(255,255,255,.05);
           display: inline-block;
-          padding: 9px 11px;
+          padding: 4px 11px;
           margin-bottom: 0;
           font-size: 16px;
           text-align: center;
@@ -97,17 +97,24 @@
           display: flex;
           flex-direction: column;
           flex-shrink: 0;
+          justify-content: center;
+          gap: 8px;
           background-color: rgba(255,255,255,.1);
           padding: var(--padding);
           padding-bottom: calc(var(--padding) + env(safe-area-inset-bottom));
       }
       .title {
-          margin: 5px 0;
+          margin: 0;
           text-align: center;
           color: #fff;
           font-weight: normal;
           font-size: 16px;
-          display: none;
+          text-align: center;
+          max-width: 90vw;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          align-self: center;
       }
       .control-bar {
           display: flex;
@@ -351,7 +358,6 @@
                 </div>
             </div>
             <div class="meta">
-                <h3 class="title">Loading…</h3>
                 <div class="control-bar">
                     <div class="trailing-group">
                         <button class="skip-button" data-behavior="skip_backwards" title="Rewind 15 seconds">◀︎</button>
@@ -366,6 +372,7 @@
                         <button class="skip-button" data-behavior="skip_forwards" title="Fast-forward 15 seconds">▶︎</button>
                     </div>
                 </div>
+                <h3 class="title">Loading…</h3>
             </div>
         </div>
     </div>
